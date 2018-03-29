@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Runtime.InteropServices.ComTypes;
 using MassTransit;
-using MassTransit.RabbitMqTransport.Transport;
 using Microsoft.Extensions.DependencyInjection;
 using NetCoreMassRabbit.Domain.Contracts;
 using NetCoreMassRabbit.Domain.DTOs;
@@ -11,7 +9,7 @@ namespace NetCoreMassRabbit.Publisher
     class Program
     {
         private static IServiceProvider _serviceProvider;
-        private static readonly Uri ServiceAddress = new Uri("rabbitmq://localhost/client-service");
+        private static readonly Uri ServiceAddress = new Uri("rabbitmq://192.168.99.100/client-service");
         static void Main(string[] args)
         {
             StartBus();
@@ -29,7 +27,7 @@ namespace NetCoreMassRabbit.Publisher
         {
             var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
             {
-                cfg.Host(new Uri("rabbitmq://localhost/"), h => { });
+                cfg.Host(new Uri("rabbitmq://192.168.99.100/"), h => { });
             });
 
             var timeout = TimeSpan.FromSeconds(10);
@@ -50,7 +48,7 @@ namespace NetCoreMassRabbit.Publisher
             var sendEndpointProvider = _serviceProvider.GetService<ISendEndpointProvider>();
 
             var endpoint = sendEndpointProvider.GetSendEndpoint(ServiceAddress).Result;
-            for (var i = 1; i <= 50; i++)
+            for (var i = 1; i <= 5000; i++)
             {
                 var name = $"Name {i}";
                 Console.WriteLine($"Sending {name}");

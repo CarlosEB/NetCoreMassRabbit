@@ -1,7 +1,5 @@
-﻿using System;
+﻿using NetCoreMassRabbit.Infrastructure;
 using System.Threading.Tasks;
-using MassTransit;
-using NetCoreMassRabbit.Domain.Contracts;
 
 namespace NetCoreMassRabbit.Worker1
 {
@@ -9,41 +7,31 @@ namespace NetCoreMassRabbit.Worker1
     {
         static void Main(string[] args)
         {
-            var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
+            var taskW1 = Task.Run(() =>
             {
-                var host = cfg.Host(new Uri("rabbitmq://localhost/"), h => { });
-
-                cfg.ReceiveEndpoint(host, "client-service", e =>
-                {
-                    e.Handler<ISubmitClient>(context =>
-                    {
-                        Console.WriteLine($"Receiving in work 1: {context.Message.Name}");
-                        return context.RespondAsync<IClientAccepted>(new {context.Message.ClientId});
-                    });
-                });                
+                var worker = new Worker(1);
+                worker.RunAsync().Wait();
             });
 
-            NewMethod(bus).Wait();
-
-        }
-
-        private static async Task NewMethod(IBusControl bus)
-        {
-            await bus.StartAsync();
-            try
+            var taskW2 = Task.Run(() =>
             {
-                Console.WriteLine("Working....");
+                var worker = new Worker(2);
+                worker.RunAsync().Wait();
+            });
 
-                Console.ReadLine();
-            }
-            catch (Exception e)
+            var taskW3 = Task.Run(() =>
             {
-                Console.WriteLine(e);
-            }
-            finally
+                var worker = new Worker(3);
+                worker.RunAsync().Wait();
+            });
+
+            var taskW4 = Task.Run(() =>
             {
-                await bus.StopAsync();
-            }
+                var worker = new Worker(4);
+                worker.RunAsync().Wait();
+            });
+
+            Task.WaitAll(taskW1, taskW2, taskW3, taskW4);
         }
     }
 }

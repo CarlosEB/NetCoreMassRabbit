@@ -1,7 +1,4 @@
-﻿using System;
-using System.Threading.Tasks;
-using MassTransit;
-using NetCoreMassRabbit.Domain.Contracts;
+﻿using NetCoreMassRabbit.Infrastructure;
 
 namespace NetCoreMassRabbit.Worker2
 {
@@ -9,41 +6,8 @@ namespace NetCoreMassRabbit.Worker2
     {
         static void Main(string[] args)
         {
-            var bus = Bus.Factory.CreateUsingRabbitMq(cfg =>
-            {
-                var host = cfg.Host(new Uri("rabbitmq://localhost/"), h => { });
-
-                cfg.ReceiveEndpoint(host, "client-service", e =>
-                {
-                    e.Handler<ISubmitClient>(context =>
-                    {
-                        Console.WriteLine($"Receiving in work 2: {context.Message.Name}");
-                        return context.RespondAsync<IClientAccepted>(new { context.Message.ClientId });
-                    });
-                });
-            });
-
-            NewMethod(bus).Wait();
-
-        }
-
-        private static async Task NewMethod(IBusControl bus)
-        {
-            await bus.StartAsync();
-            try
-            {
-                Console.WriteLine("Working....");
-
-                Console.ReadLine();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            finally
-            {
-                await bus.StopAsync();
-            }
+            var worker = new Worker(3);
+            worker.RunAsync().Wait();
         }
     }
 }

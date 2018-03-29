@@ -11,6 +11,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\NetCoreMassRabbit.Domain\NetCoreMassRabbit.Domain.csproj" />
+    <ProjectReference Include="..\NetCoreMassRabbit.Infrastructure\NetCoreMassRabbit.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
